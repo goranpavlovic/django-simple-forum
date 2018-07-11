@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, get_object_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth import logout
-from django_simple_forum.models import Topic
+from .models import Topic
 
 
 class AdminMixin(object):
@@ -17,7 +17,7 @@ class CanUpdateTopicMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         user = self.request.user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return redirect(reverse("django_simple_forum:topic_list"))
         pk = kwargs.get("slug")
         self.object = get_object_or_404(Topic, slug=pk)
@@ -30,7 +30,7 @@ class LoginRequiredMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         user = self.request.user
-        if user.is_authenticated():
+        if user.is_authenticated:
             if user.is_active:
                 return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
             else:

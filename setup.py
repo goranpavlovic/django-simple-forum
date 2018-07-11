@@ -41,17 +41,21 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=[
-        "Django>=1.6.0,<1.10",
-        'django-simple-pagination',
-        'django-storages',
-        'microurl',
-        'boto',
-        'sendgrid',
+        "Django>=2.0.0,<=2.0.7",
+        "django-compressor>=2.2"
+        'django-simple-pagination>=1.1.8',
+        'django-storages>=1.6.6',
+        'microurl>=0.1.1',
+        'boto>=2.48.0',
+        'sendgrid>=5.4.1',
         'sorl-thumbnail==12.4a1',
-        'django-ses-gateway'
+        'django-ses-gateway>=0.1.1'
     ],
 )

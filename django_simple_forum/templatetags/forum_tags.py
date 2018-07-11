@@ -1,5 +1,5 @@
 from django import template
-from django_simple_forum.models import ForumCategory, Tags, Badge, UserTopics, UserProfile
+from ..models import ForumCategory, Tags, Badge, UserTopics, UserProfile
 from django.db.models import Count
 try:
     from django.contrib.auth import get_user_model
@@ -8,27 +8,28 @@ except ImportError:
     from django.contrib.auth.models import User
 
 register = template.Library()
+register_tag = register.simple_tag if hasattr(register, 'simple_tag') else register.assignment_tag
 
 
-@register.assignment_tag()
+@register_tag
 def get_categories():
     all_categories = ForumCategory.objects.filter(is_active=True).annotate(num_topics=Count('topic')).order_by('-num_topics')[:10]
     return all_categories
 
 
-@register.assignment_tag()
+@register_tag
 def get_tags():
     all_categories = Tags.objects.annotate(num_topics=Count('topic')).order_by('-num_topics')[:10]
     return all_categories
 
 
-@register.assignment_tag()
+@register_tag
 def get_users():
     all_users = User.objects.annotate(num_topics=Count('topic')).order_by('-num_topics')[:10]
     return all_users
 
 
-@register.assignment_tag()
+@register_tag
 def get_badges():
     all_badges = Badge.objects.filter()[:10]
     return all_badges

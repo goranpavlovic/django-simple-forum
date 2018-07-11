@@ -25,7 +25,7 @@ class RegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'username', 'password']
+        fields = ['email', 'username', 'password']
 
 
 class CategoryForm(forms.ModelForm):

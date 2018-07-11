@@ -15,13 +15,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='forumcategory',
             name='slug',
-            field=models.SlugField(default='test', max_length=1000),
+            field=models.SlugField(default='test', max_length=255),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='topic',
             name='slug',
-            field=models.SlugField(default='test', max_length=1000),
+            field=models.SlugField(default='test', max_length=255),
             preserve_default=False,
         ),
     ]

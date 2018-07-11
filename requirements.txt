@@ -1,23 +1,23 @@
 appdirs==1.4.3
-boto==2.46.1
+boto==2.48.0
 coverage==4.4
 coveralls==1.1
-Django==1.11.1
+Django==2.0.4
 django-appconf==1.0.2
-django-compressor==2.1.1
+django-compressor==2.2
 django-ses-gateway==0.1.1
-django-simple-pagination==1.1.4
+-e git+https://github.com/goranpavlovic/django-simple-pagination.git@57de501d1a1f171d88d49454751757e480771545#egg=django_simple_pagination
 docopt==0.6.2
-lxml==3.7.3
+lxml==4.2.3
 microurl==0.1.1
-packaging==16.8
+packaging==17.1
 pyparsing==2.2.0
-python-http-client==2.2.1
-pytz==2017.2
+python-http-client==3.1.0
+pytz==2018.5
 rcssmin==1.0.6
-requests==2.13.0
+requests==2.19.1
 rjsmin==1.0.12
-sendgrid==4.0.0
-six==1.10.0
-sorl-thumbnail==12.3
+sendgrid==5.4.1
+six==1.11.0
+sorl-thumbnail==12.4.1
 -r sandbox/requirements.txt

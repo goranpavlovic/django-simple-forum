@@ -7,7 +7,8 @@ except ImportError:
 from datetime import datetime
 
 from django.contrib.auth import logout, login, load_backend
-from django.core.urlresolvers import reverse, reverse_lazy
+#from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.core.files import File
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
@@ -56,7 +57,7 @@ class LoginView(FormView):
     form_class = LoginForm
 
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if request.user.is_superuser:
                 return redirect('django_simple_forum:dashboard')
             else:
@@ -559,12 +560,16 @@ class TopicList(ListView):
     context_object_name = "topic_list"
 
     def get_queryset(self):
-        if self.request.user.is_authenticated():
-            query = Q(status='Published')|Q(created_by=self.request.user)
+        """
+        if self.request.user.is_authenticated:
+            query = Q(status='Published') | Q(created_by=self.request.user)
         else:
             query = Q(status='Published')
         queryset = Topic.objects.filter(query).order_by('-created_on')
+        """
+        queryset = Topic.objects.all().order_by('-created_on')
         return queryset
+
 
 class TopicView(TemplateView):
     template_name = 'forum/view_topic.html'
@@ -859,7 +864,7 @@ class ForumCategoryView(ListView):
     template_name = 'forum/topic_list.html'
 
     def get_queryset(self, queryset=None):
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             query = Q(status="Published")|Q(created_by=self.request.user)
         else:
             query = Q(status="Published")
@@ -1212,7 +1217,7 @@ def facebook_login(request):
                 fb.timezone = profile['timezone']
                 fb.accesstoken = accesstoken
                 fb.save()
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated:
                 if not hasattr(user, 'backend'):
                     for backend in settings.AUTHENTICATION_BACKENDS:
                         if user == load_backend(backend).get_user(user.pk):
@@ -1258,7 +1263,7 @@ def google_login(request):
         link = user_document[
             'link'] if 'link' in user_document.keys() else link
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             user = request.user
         else:
             user = User.objects.filter(email=user_document['email']).first()
@@ -1293,7 +1298,7 @@ def google_login(request):
         google.picture = picture
         google.save()
 
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             if not hasattr(user, 'backend'):
                 for backend in settings.AUTHENTICATION_BACKENDS:
                     if user == load_backend(backend).get_user(user.pk):

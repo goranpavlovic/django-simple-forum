@@ -19,6 +19,24 @@ USER_ROLES = (
 User = settings.AUTH_USER_MODEL
 
 
+def get_admin():
+    from django.contrib.auth import get_user_model
+    from django.db.utils import OperationalError
+    try:
+        User = get_user_model()
+        userInstance = User.objects.filter(is_superuser=True).first()
+        if userInstance is None:
+            # Create user which will give ownership on all objects that we don't want to delete after owner of that
+            # posts was deleted.
+            #
+            django_forum_default_admin = User.objects.create_superuser('myuser', 'myemail@test.com', "fsoejrohqoiwe")
+            return django_forum_default_admin
+        else:
+            return userInstance
+    except OperationalError as e:
+        return None
+
+
 # tags created for topic
 class Tags(models.Model):
     title = models.CharField(max_length=50, unique=True)
@@ -51,7 +69,7 @@ def img_url(self, filename):
 class UserProfile(models.Model):
     file_prepend = "forum_user/profilepics/"
     
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     used_votes = models.IntegerField(default='0')
     user_roles = models.CharField(choices=USER_ROLES, max_length=10)
     badges = models.ManyToManyField(Badge)
@@ -110,15 +128,15 @@ class UserProfile(models.Model):
 
 
 class ForumCategory(models.Model):
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET(get_admin()))
     title = models.CharField(max_length=1000)
     is_active = models.BooleanField(default=False)
     color = models.CharField(max_length=20, default="#999999")
     is_votable = models.BooleanField(default=False)
     created_on = models.DateTimeField(auto_now_add=True)
-    slug = models.SlugField(max_length=1000)
+    slug = models.SlugField(max_length=5000)
     description = models.TextField()
-    parent = models.ForeignKey('self', blank=True, null=True)
+    parent = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
 
     def get_topics(self):
         topics = Topic.objects.filter(category=self, status='Published')
@@ -133,7 +151,7 @@ class Vote(models.Model):
         ("U", "Up"),
         ("D", "Down"),
     )
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(choices=TYPES, max_length=1)
     created_on = models.DateTimeField(auto_now_add=True)
 
@@ -143,13 +161,13 @@ class Vote(models.Model):
 class Topic(models.Model):
     title = models.CharField(max_length=2000)
     description = models.TextField()
-    created_by = models.ForeignKey(User)
+    created_by = models.ForeignKey(User, on_delete=models.SET(get_admin()))
     status = models.CharField(choices=STATUS, max_length=10)
-    category = models.ForeignKey(ForumCategory)
+    category = models.ForeignKey(ForumCategory, on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now=True)
     updated_on = models.DateTimeField(auto_now=True)
     no_of_views = models.IntegerField(default='0')
-    slug = models.SlugField(max_length=1000)
+    slug = models.SlugField(max_length=255)
     tags = models.ManyToManyField(Tags)
     no_of_likes = models.IntegerField(default='0')
     votes = models.ManyToManyField(Vote)
@@ -189,8 +207,8 @@ class Topic(models.Model):
 
 # user followed topics
 class UserTopics(models.Model):
-    user = models.ForeignKey(User)
-    topic = models.ForeignKey(Topic)
+    user = models.ForeignKey(User, on_delete=models.SET(get_admin()))
+    topic = models.ForeignKey(Topic, on_delete=models.SET(get_admin()))
     is_followed = models.BooleanField(default=False)
     followed_on = models.DateField(null=True, blank=True)
     no_of_votes = models.IntegerField(default='0')
@@ -200,11 +218,11 @@ class UserTopics(models.Model):
 
 class Comment(models.Model):
     comment = models.TextField(null=True, blank=True)
-    commented_by = models.ForeignKey(User, related_name="commented_by")
-    topic = models.ForeignKey(Topic, related_name="topic_comments")
+    commented_by = models.ForeignKey(User, related_name="commented_by", on_delete=models.SET(get_admin()))
+    topic = models.ForeignKey(Topic, related_name="topic_comments", on_delete=models.CASCADE)
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now_add=True)
-    parent = models.ForeignKey("self", blank=True, null=True, related_name="comment_parent")
+    parent = models.ForeignKey("self", blank=True, null=True, related_name="comment_parent", on_delete=models.CASCADE)
     mentioned = models.ManyToManyField(User, related_name="mentioned_users")
     votes = models.ManyToManyField(Vote)
 
@@ -221,12 +239,12 @@ class Comment(models.Model):
 
 # user activity
 class Timeline(models.Model):
-    content_type = models.ForeignKey(ContentType, related_name="content_type_timelines")
+    content_type = models.ForeignKey(ContentType, related_name="content_type_timelines", on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
     namespace = models.CharField(max_length=250, default="default", db_index=True)
     event_type = models.CharField(max_length=250, db_index=True)
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET(get_admin()))
     data = models.TextField(null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
@@ -238,15 +256,15 @@ class Timeline(models.Model):
 
 class Attachment(models.Model):
     file_prepend = "forum_topic/attachments/"
-    uploaded_by = models.ForeignKey(User, related_name='attachments_user')
+    uploaded_by = models.ForeignKey(User, related_name='attachments_user', on_delete=models.SET(get_admin()))
     created_on = models.DateTimeField(auto_now_add=True)
     attached_file = models.FileField(
         max_length=500, null=True, blank=True, upload_to=img_url)
-    comment = models.ForeignKey(Comment)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
 
 
 class Facebook(models.Model):
-    user = models.ForeignKey(User, related_name='user_facebook')
+    user = models.ForeignKey(User, related_name='user_facebook', on_delete=models.CASCADE)
     facebook_id = models.CharField(max_length=100)
     facebook_url = models.CharField(max_length=200, default='')
     first_name = models.CharField(max_length=200, default='')
@@ -264,7 +282,7 @@ class Facebook(models.Model):
 
 
 class Google(models.Model):
-    user = models.ForeignKey(User, related_name='user_google')
+    user = models.ForeignKey(User, related_name='user_google', on_delete=models.CASCADE)
     google_id = models.CharField(max_length=200, default='')
     google_url = models.CharField(max_length=1000, default='')
     verified_email = models.CharField(max_length=200, default='')
@@ -278,7 +296,7 @@ class Google(models.Model):
 
 
 class GitHub(models.Model):
-    user = models.ForeignKey(User, related_name='user_github')
+    user = models.ForeignKey(User, related_name='user_github', on_delete=models.CASCADE)
     git_url = models.URLField()
     git_id = models.CharField(max_length=50)
     disk_usage = models.CharField(max_length=200)
@@ -296,7 +314,7 @@ class GitHub(models.Model):
 
 
 class Twitter(models.Model):
-    user = models.ForeignKey(User, related_name='user_twitter')
+    user = models.ForeignKey(User, related_name='user_twitter', on_delete=models.CASCADE)
     twitter_id = models.CharField(max_length=100, default='')
     screen_name = models.CharField(max_length=100, default='')
     oauth_token = models.CharField(max_length=200, default='')
