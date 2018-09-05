@@ -4,7 +4,7 @@
 <html lang="en">
    <head>
       <meta charset="UTF-8">
-      <title>Django Simple Forum</title>
+      <title>Dronobox forum</title>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link href='https://fonts.googleapis.com/css?family=Poppins:400,300,500,600,700' rel='stylesheet' type='text/css'>
       <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -22,7 +22,8 @@
       <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header pad_lr_0 col-md-3 col-sm-3 col-xs-4">
-          <a class="navbar-brand" href="{% url "django_simple_forum:topic_list" %}">Forum</a>
+          <a class="navbar-brand" href="http://dronobox.com">Dronobox Home</a>
+          <a class="navbar-brand" href="{% url "django_simple_forum:topic_list" %}">Dronobox Forum</a>
         </div>
         <div class="col-md-9 col-sm-9 col-xs-8 pad_lr_0 nav_right text-right">
             <div class="row no_row_margin header_right">
@@ -36,11 +37,11 @@
 
               <ul class="login_block">
               {% if not request.user.is_authenticated %}
-                <li><a href="#" data-toggle="modal" data-target="#demo-1"><i class="fa fa-sign-in"></i> <span>Sign In</span></a></li>
-                <li><a href="#" data-toggle="modal" data-target="#demo-2"><i class="fa fa-plus-circle"></i> <span>Sign Up</span></a></li>
+                <!--li><a href="#" data-toggle="modal" data-target="#demo-1"><i class="fa fa-sign-in"></i> <span>Sign In</span></a></li-->
+                <!--li><a href="#" data-toggle="modal" data-target="#demo-2"><i class="fa fa-plus-circle"></i> <span>Sign Up</span></a></li-->
               {% else %}
-                <li><a href="#" data-toggle="modal" data-target="#demo-4"><i class="fa fa-sign-out"></i> <span>Change Password</span></a></li>
-                <li><a href="{% url "django_simple_forum:out" %}"><i class="fa fa-sign-out"></i> <span>Sign Out</span></a></li>
+                <!--li><a href="#" data-toggle="modal" data-target="#demo-4"><i class="fa fa-sign-out"></i> <span>Change Password</span></a></li-->
+                <!--li><a href="{% url "django_simple_forum:out" %}"><i class="fa fa-sign-out"></i> <span>Sign Out</span></a></li-->
                 <li><a class='user_profile_pic' href="{% url "django_simple_forum:user_profile" %}"><img src="{% if request.user|user_profile_pic %}{% thumbnail request.user|user_profile_pic "100x100" upscale=True padding=True %}{% else %}//d2pt99vxm3n8bc.cloudfront.net/static/dummy.jpg{% endif %}" class="profile_pic"></img></a></li>
               {% endif %}
               </ul>
